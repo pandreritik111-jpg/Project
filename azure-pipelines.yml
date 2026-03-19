@@ -1,0 +1,35 @@
+trigger:
+- main
+ 
+pool:
+  name: Default   # your self-hosted agent
+ 
+stages:
+- stage: Deploy
+  jobs:
+  - job: MultiCloud
+    steps:
+ 
+    - script: |
+        sudo apt-get update
+        sudo apt-get install -y unzip curl
+      displayName: Install dependencies
+ 
+    - script: |
+        curl -LO https://releases.hashicorp.com/terraform/1.6.6/terraform_1.6.6_linux_amd64.zip
+        unzip terraform_1.6.6_linux_amd64.zip
+        sudo mv terraform /usr/local/bin/
+        terraform -v
+      displayName: Install Terraform
+ 
+    - script: |
+        cd azure
+        terraform init
+        terraform apply -auto-approve
+      displayName: Deploy Azure VM
+ 
+    - script: |
+        cd aws
+        terraform init
+        terraform apply -auto-approve
+      displayName: Deploy AWS VM
